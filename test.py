@@ -18,7 +18,11 @@ class DHT11Test(unittest.TestCase):
         self.assertEquals(self.dht11._get_data_impulses(self.raw_bits), lengths)
 
     def test_get_bits_from_impulses(self):
-        bits = [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-                1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
-        self.assertEquals(self.dht11._get_bits_from_impulses(
-            self.raw_bits), bits)
+        lengths = [3, 3, 8, 3, 8, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 8,
+                   9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 8, 3, 3, 3, 3, 3, 3]
+
+        actual_bits = self.dht11._get_bits_from_impulses(lengths)
+        expected_bits = [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                         0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                         0, 0, 0, 0, 0, 0]
+        self.assertEquals(expected_bits, actual_bits)
