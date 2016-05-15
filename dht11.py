@@ -1,39 +1,68 @@
-import Rpi
+import time
+import RPi
 
-from statistics import mean
 from time import sleep
+from statistics import mean
 
 
 class DHT11:
     'DHT11 sensor reader class for Rpi.GPIO library (works with Pine64 port)'
 
-    def __init__(pin):
+    def __init__(self, pin):
         self.pin = pin
 
-    def get_bytes_from_dht11(self):
+    def get_result(self, max_tries=50):
+        """Try to get a valid result from the sensor within supplied limit.
+        Returns None if limit has been reached.
+        """
+        start_time = time.time()
+
+        for try_num in range(0, max_tries):
+            r = self.get_result_once()
+
+            if r:
+                print(try_num)
+                return r
+
+    def get_result_once(self):
+        try:
+            byte_array = self._get_bytes_from_dht11()
+            self._checksum(byte_array)
+        except Exception as e:
+            return
+
+        rel_humidity = byte_array[0]
+        temp = byte_array[2]
+        return temp, rel_humidity
+
+    def _checksum(self, byte_array):
+        checksum = byte_array[0] + byte_array[1] + \
+            byte_array[2] + byte_array[3] & 255
+        if checksum != byte_array[4]:
+            raise Exception('Checksum error')
+
+    def _get_bytes_from_dht11(self):
         """Contact DHT11 and return bytes bytes"""
         RPi.GPIO.setup(self.pin, RPi.GPIO.OUT)
 
-        self._send(RPi.GPIO.HIGH, 0.05)
-        self._send(RPi.GPIO.LOW, 0.02)
+        RPi.GPIO.output(self.pin, RPi.GPIO.LOW)
+        sleep(30 / 1000.0)  # Send signal for 30ms
+        RPi.GPIO.output(self.pin, RPi.GPIO.HIGH)
 
         RPi.GPIO.setup(self.pin, RPi.GPIO.IN, RPi.GPIO.PUD_UP)
-
         raw_bits = self._collect_raw_bits()
-        bits = _get_bits_from_impulses(raw_bits)
-        byte_array = _get_bytes_from_bits(bits)
+        impulses = self._get_data_impulses(raw_bits)
 
-        if len(bits) != 40:
-            print('Missing data. Only got %d bits' % len(bits))
-        print(byte_array)
+        if len(impulses) != 40:
+            raise Exception('Missing data. Only got %d bits.' % len(impulses))
 
-    def _send(self, output, delay):
-        RPi.GPIO.output(self.pin, output)
-        sleep(delay)
+        bits = self._get_bits_from_impulses(impulses)
+
+        return self._get_bytes_from_bits(bits)
 
     def _collect_raw_bits(self):
         seq_count = 0  # Sequential bits count
-        last = -1
+        last_bit = -1
         bits = []
 
         while seq_count < 64:
