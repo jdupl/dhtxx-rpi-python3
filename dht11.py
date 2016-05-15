@@ -7,10 +7,10 @@ class DHT11:
     def _get_bytes_from_bits(self, bits):
         byte_array = []
 
-        for i in range(0, len(bits), 8):
+        for byte_index in range(0, len(bits), 8):
             byte = 0
-            for j in range(0, 8):
-                byte = byte << 1 | bits[i + j]
+            for bit_index in range(0, 8):
+                byte = byte << 1 | bits[byte_index + bit_index]
             byte_array.append(byte)
 
         return byte_array
