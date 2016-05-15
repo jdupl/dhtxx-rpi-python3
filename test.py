@@ -26,3 +26,13 @@ class DHT11Test(unittest.TestCase):
                          0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
                          0, 0, 0, 0, 0, 0]
         self.assertEquals(expected_bits, actual_bits)
+
+    def test_get_bytes_from_bits(self):
+        bits = [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        0, 0, 0, 0, 0, 0]
+
+        expected = [40, 0, 24, 0, 64]
+
+        actual = self.dht11._get_bytes_from_bits(bits)
+        self.assertEquals(expected, actual)

@@ -4,6 +4,17 @@ from statistics import mean
 class DHT11:
     'DHT11 sensor reader class for Rpi.GPIO library (works with Pine64 port)'
 
+    def _get_bytes_from_bits(self, bits):
+        byte_array = []
+
+        for i in range(0, len(bits), 8):
+            byte = 0
+            for j in range(0, 8):
+                byte = byte << 1 | bits[i + j]
+            byte_array.append(byte)
+
+        return byte_array
+
     def _get_bits_from_impulses(self, impulses):
         avg = mean(impulses)
         bits = []
