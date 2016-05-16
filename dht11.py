@@ -1,12 +1,12 @@
 import time
-import RPi
+import RPi.GPIO as GPIO
 
 from time import sleep
 from statistics import mean
 
 
 class DHT11:
-    'DHT11 sensor reader class for Rpi.GPIO library (works with Pine64 port)'
+    'DHT11 sensor reader class for GPIO library (works with Pine64 port)'
 
     def __init__(self, pin):
         self.pin = pin
@@ -21,7 +21,6 @@ class DHT11:
             r = self.get_result_once()
 
             if r:
-                print(try_num)
                 return r
 
     def get_result_once(self):
@@ -43,13 +42,13 @@ class DHT11:
 
     def _get_bytes_from_dht11(self):
         """Contact DHT11 and return bytes bytes"""
-        RPi.GPIO.setup(self.pin, RPi.GPIO.OUT)
+        GPIO.setup(self.pin, GPIO.OUT)
 
-        RPi.GPIO.output(self.pin, RPi.GPIO.LOW)
+        GPIO.output(self.pin, GPIO.LOW)
         sleep(30 / 1000.0)  # Send signal for 30ms
-        RPi.GPIO.output(self.pin, RPi.GPIO.HIGH)
+        GPIO.output(self.pin, GPIO.HIGH)
 
-        RPi.GPIO.setup(self.pin, RPi.GPIO.IN, RPi.GPIO.PUD_UP)
+        GPIO.setup(self.pin, GPIO.IN, GPIO.PUD_UP)
         raw_bits = self._collect_raw_bits()
         impulses = self._get_data_impulses(raw_bits)
 
@@ -66,7 +65,7 @@ class DHT11:
         bits = []
 
         while seq_count < 64:
-            bit = RPi.GPIO.input(self.pin)
+            bit = GPIO.input(self.pin)
             bits.append(bit)
 
             if last_bit != bit:
