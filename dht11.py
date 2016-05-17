@@ -1,4 +1,3 @@
-import time
 import RPi.GPIO as GPIO
 
 from time import sleep
@@ -10,13 +9,14 @@ class DHT11:
 
     def __init__(self, pin):
         self.pin = pin
+        GPIO.setwarnings(False)
+        GPIO.setmode(GPIO.BCM)
+        GPIO.cleanup()
 
     def get_result(self, max_tries=50):
         """Try to get a valid result from the sensor within supplied limit.
         Returns None if limit has been reached.
         """
-        start_time = time.time()
-
         for try_num in range(0, max_tries):
             r = self.get_result_once()
 
@@ -27,7 +27,7 @@ class DHT11:
         try:
             byte_array = self._get_bytes_from_dht11()
             self._checksum(byte_array)
-        except Exception as e:
+        except Exception:
             return
 
         rel_humidity = byte_array[0]
