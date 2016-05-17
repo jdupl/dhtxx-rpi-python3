@@ -98,8 +98,14 @@ class DHT11:
             # Save length of pull up
             impulses.append(length)
 
-        # Ignore init and final pull ups
-        return impulses[1:-1]
+        # Ignore final pull up
+        impulses = impulses[:-1]
+
+        if len(impulses > 40):
+            # Ignore init pull up
+            return impulses[1:]
+
+        return impulses
 
     def _get_length_of_sequential_bits(self, bits, bit_type):
         for i, bit in enumerate(bits):

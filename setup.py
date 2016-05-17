@@ -19,7 +19,8 @@ setup(
     ],
 
     keywords='dht11 iot raspberrypi rpi pi',
-    packages=find_packages(exclude=['contrib', 'docs', 'tests', 'examples']),
+    packages=find_packages(exclude=['contrib', 'docs', 'tests',
+                                    'usage_example.py']),
     install_requires=['RPi.GPIO'],
     extras_require={
         'test': ['nose'],
