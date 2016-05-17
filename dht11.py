@@ -101,7 +101,7 @@ class DHT11:
         # Ignore final pull up
         impulses = impulses[:-1]
 
-        if len(impulses > 40):
+        if len(impulses) > 40:
             # Ignore init pull up
             return impulses[1:]
 
