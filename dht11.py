@@ -1,62 +1,77 @@
-import RPi.GPIO as GPIO
-
 from time import sleep
 from statistics import mean
+
+GPIO = None
 
 
 class DHT11:
     'DHT11 sensor reader class for GPIO library (works with Pine64 port)'
 
-    def __init__(self, pin):
+    def __init__(self, pin, gpio_lib=None):
+        """
+        pin: BCM number
+        gpio_lib: optional library injection (for tests, Pine64 or platforms)
+        """
         self.pin = pin
+
+        if not gpio_lib:
+            # Loads only on a Raspberry Pi
+            import RPi.GPIO as GPIO
+        else:
+            GPIO = gpio_lib
+
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
 
-    def get_result(self, max_tries=50):
+    def get_result(self, max_tries=5):
         """Try to get a valid result from the sensor within supplied limit.
-        Returns None if limit has been reached.
+        Returns the tuple (temperature, humidity) or None if 'max_tries'
+        has been reached.
         """
         for try_num in range(0, max_tries):
-            r = self.get_result_once()
-
-            if r:
-                return r
-        GPIO.cleanup()
+            try:
+                return self.get_result_once()
+            except Exception:
+                sleep(0.1)
 
     def get_result_once(self):
-        try:
-            byte_array = self._get_bytes_from_dht11()
-            self._checksum(byte_array)
-        except Exception:
-            return
+        """Only query DHT11 once.
+        Returns the tuple (temperature, humidity) or throws exception.
+        """
+        byte_array = self._get_bytes_from_dht11()
+        self._checksum(byte_array)
 
         rel_humidity = byte_array[0]
         temp = byte_array[2]
         return temp, rel_humidity
 
     def _checksum(self, byte_array):
+        """Raises Exception if checksum is invalid."""
         checksum = byte_array[0] + byte_array[1] + \
             byte_array[2] + byte_array[3] & 255
+
         if checksum != byte_array[4]:
             raise Exception('Checksum error')
 
     def _get_bytes_from_dht11(self):
-        """Contact DHT11 and return bytes bytes"""
-        GPIO.setup(self.pin, GPIO.OUT)
+        """Contact DHT11 and return bytes"""
+        try:
+            GPIO.setup(self.pin, GPIO.OUT)
 
-        GPIO.output(self.pin, GPIO.LOW)
-        sleep(30 / 1000.0)  # Send signal for 30ms
-        GPIO.output(self.pin, GPIO.HIGH)
+            GPIO.output(self.pin, GPIO.LOW)
+            sleep(30 / 1000.0)  # Send signal for 30ms
+            GPIO.output(self.pin, GPIO.HIGH)
 
-        GPIO.setup(self.pin, GPIO.IN, GPIO.PUD_UP)
-        raw_bits = self._collect_raw_bits()
+            GPIO.setup(self.pin, GPIO.IN, GPIO.PUD_UP)
+            raw_bits = self._collect_raw_bits()
+        except Exception:
+            GPIO.cleanup()
+
         impulses = self._get_data_impulses(raw_bits)
-
         if len(impulses) != 40:
             raise Exception('Missing data. Only got %d bits.' % len(impulses))
 
         bits = self._get_bits_from_impulses(impulses)
-
         return self._get_bytes_from_bits(bits)
 
     def _collect_raw_bits(self):
