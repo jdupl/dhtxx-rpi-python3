@@ -11,7 +11,6 @@ class DHT11:
         self.pin = pin
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
-        GPIO.cleanup()
 
     def get_result(self, max_tries=50):
         """Try to get a valid result from the sensor within supplied limit.
@@ -22,6 +21,7 @@ class DHT11:
 
             if r:
                 return r
+        GPIO.cleanup()
 
     def get_result_once(self):
         try:
