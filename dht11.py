@@ -80,6 +80,7 @@ class DHT11:
         return self._get_bytes_from_bits(bits)
 
     def _collect_raw_bits(self):
+        GPIO = self.gpio_lib
         seq_count = 0  # Sequential bits count
         last_bit = -1
         bits = []
