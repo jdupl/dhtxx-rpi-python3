@@ -20,6 +20,8 @@ class DHT11:
         else:
             GPIO = gpio_lib
 
+        self.gpio_lib = GPIO
+
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
 
@@ -55,6 +57,7 @@ class DHT11:
 
     def _get_bytes_from_dht11(self):
         """Contact DHT11 and return bytes"""
+        GPIO = self.gpio_lib
         try:
             GPIO.setup(self.pin, GPIO.OUT)
 
