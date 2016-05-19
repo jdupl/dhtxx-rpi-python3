@@ -58,6 +58,8 @@ class DHT11:
     def _get_bytes_from_dht11(self):
         """Contact DHT11 and return bytes"""
         GPIO = self.gpio_lib
+        raw_bits = []
+
         try:
             GPIO.setup(self.pin, GPIO.OUT)
 
