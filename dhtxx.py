@@ -56,18 +56,21 @@ class DHT:
             raise Exception('Checksum error')
 
     def _get_bytes_from_dht(self):
-        """Contact DHT11 and return bytes"""
+        """Contact DHT and return bytes"""
         GPIO = self.gpio_lib
         raw_bits = []
 
         try:
             GPIO.setup(self.pin, GPIO.OUT)
 
+            # Pull down for 20ms
             GPIO.output(self.pin, GPIO.LOW)
-            sleep(30 / 1000.0)  # Send signal for 30ms
+            sleep(20 / 1000.0)
+
             GPIO.output(self.pin, GPIO.HIGH)
 
-            GPIO.setup(self.pin, GPIO.IN, GPIO.PUD_UP)
+            GPIO.setup(self.pin, GPIO.IN)
+            # GPIO.setup(self.pin, GPIO.IN, GPIO.PUD_UP)
             raw_bits = self._collect_raw_bits()
         except Exception:
             GPIO.cleanup()
@@ -149,4 +152,23 @@ class DHT11(DHT):
     def _get_temp_humidity_tuple(self, byte_array):
         rel_humidity = byte_array[0]
         temp = byte_array[2]
+        return temp, rel_humidity
+
+
+class DHT22(DHT):
+    """DHT22 sensor reader class """
+
+    def __init__(self, *args, **kwargs):
+        super(DHT22, self).__init__(*args, **kwargs)
+
+    def _get_temp_humidity_tuple(self, byte_array):
+        neg = 1
+        rel_humidity = ((byte_array[0] << 8) + byte_array[1]) * 0.1
+
+        if byte_array[2] & 128:
+            # Negative temp
+            byte_array[2] = byte_array[2] & 127
+            neg = -1
+
+        temp = ((byte_array[2] << 8) + byte_array[3]) * 0.1 * neg
         return temp, rel_humidity
