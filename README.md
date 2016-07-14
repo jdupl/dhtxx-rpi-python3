@@ -1,5 +1,5 @@
 # dht11-python
-Read from a DHT11 sensor from any Raspberry Pi (or Pine64 with [port](https://github.com/swkim01/RPi.GPIO-PineA64))
+Read a DHT11 sensor from any Raspberry Pi (or Pine64 with [port](https://github.com/swkim01/RPi.GPIO-PineA64)) with Python 3.x
 
 
 ## Install library
