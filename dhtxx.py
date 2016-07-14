@@ -32,7 +32,7 @@ class DHT:
             try:
                 return self.get_result_once()
             except Exception:
-                sleep(0.1)
+                sleep(1)
 
     def get_result_once(self):
         """Only query DHT11 once.
