@@ -58,5 +58,5 @@ class DHT22Test(unittest.TestCase):
         self.dht22 = DHT22(12, MagicMock())
 
     def test__get_temp_humidity_tuple(self):
-        actual = self.dht22._get_temp_humidity_tuple([2, 123, 1, 32, 161])
-        self.assertEqual(actual, (28.8, 63.5))
+        actual = self.dht22._get_temp_humidity_tuple([2, 237, 1, 16, 0])
+        self.assertEqual(actual, (27.2, 74.9))

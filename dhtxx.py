@@ -1,4 +1,3 @@
-import math
 from time import sleep
 from statistics import mean
 
@@ -164,12 +163,12 @@ class DHT22(DHT):
 
     def _get_temp_humidity_tuple(self, byte_array):
         neg = 1
-        rel_humidity = math.floor(((byte_array[0] << 8) + byte_array[1])) * 0.1
+        rel_humidity = ((byte_array[0] << 8) + byte_array[1]) * 0.1
 
         if byte_array[2] & 128:
             # Negative temp
             byte_array[2] = byte_array[2] & 127
             neg = -1
-
         temp = ((byte_array[2] << 8) + byte_array[3]) * 0.1 * neg
-        return temp, rel_humidity
+
+        return round(temp, 1), round(rel_humidity, 1)
