@@ -4,12 +4,11 @@ from statistics import mean
 GPIO = None
 
 
-class DHT11:
-    'DHT11 sensor reader class for GPIO library (works with Pine64 port)'
-
+class DHT:
+    """Reader class for DHTxx for GPIO library (works with Pine64 port)"""
     def __init__(self, pin, gpio_lib=None):
         """
-        pin: BCM number
+        pin: BCM pin number
         gpio_lib: optional library injection (for tests, Pine64 or platforms)
         """
         self.pin = pin
@@ -19,10 +18,9 @@ class DHT11:
             import RPi.GPIO as GPIO
         else:
             GPIO = gpio_lib
-
         self.gpio_lib = GPIO
 
-        GPIO.setwarnings(False)
+        # GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
 
     def get_result(self, max_tries=5):
@@ -40,12 +38,14 @@ class DHT11:
         """Only query DHT11 once.
         Returns the tuple (temperature, humidity) or throws exception.
         """
-        byte_array = self._get_bytes_from_dht11()
+        byte_array = self._get_bytes_from_dht()
         self._checksum(byte_array)
 
-        rel_humidity = byte_array[0]
-        temp = byte_array[2]
-        return temp, rel_humidity
+        return self._get_temp_humidity_tuple(byte_array)
+
+    def _get_temp_humidity_tuple(self, byte_array):
+        """Abstract method implemented by DHT11/DHT22"""
+        raise Exception('Unimplemented')
 
     def _checksum(self, byte_array):
         """Raises Exception if checksum is invalid."""
@@ -55,7 +55,7 @@ class DHT11:
         if checksum != byte_array[4]:
             raise Exception('Checksum error')
 
-    def _get_bytes_from_dht11(self):
+    def _get_bytes_from_dht(self):
         """Contact DHT11 and return bytes"""
         GPIO = self.gpio_lib
         raw_bits = []
@@ -138,3 +138,15 @@ class DHT11:
             byte_array.append(byte)
 
         return byte_array
+
+
+class DHT11(DHT):
+    """DHT11 sensor reader class """
+
+    def __init__(self, *args, **kwargs):
+        super(DHT11, self).__init__(*args, **kwargs)
+
+    def _get_temp_humidity_tuple(self, byte_array):
+        rel_humidity = byte_array[0]
+        temp = byte_array[2]
+        return temp, rel_humidity

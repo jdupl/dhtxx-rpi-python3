@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
 
-from dht11 import DHT11
+from dhtxx import DHT11
 
 
 class DHT11Test(unittest.TestCase):
