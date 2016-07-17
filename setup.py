@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='DHT11',
-    version='1.0.0',
-    description='Library to get results from DHT11 sensor',
+    name='DHTxx',
+    version='2.0.0',
+    description='Library to get data from DHT11 or DHT22 sensor',
     url='https://github.com/jdupl/dht-python',
     author='Justin Duplessis',
     author_email='jdupl@linux.com',
@@ -15,7 +15,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
-    keywords='dht11 iot raspberrypi rpi pi',
+    keywords='dhtxx dht22 dht11 iot raspberrypi rpi pi pine64',
     packages=find_packages(exclude=['contrib', 'docs', 'tests',
                                     'usage_example.py']),
     test_suite="tests",
